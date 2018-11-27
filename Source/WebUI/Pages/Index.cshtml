@@ -97,7 +97,7 @@
 
                 let userCell = row.insertCell();
                 let userLink = document.createElement("a");
-                if (connection.pending) {
+                if (!connection.accepted && !connection.declined) {
                     userLink.href = "/incomingconnection?id=" + connection.requestorUsername;
                 }
                 else {
