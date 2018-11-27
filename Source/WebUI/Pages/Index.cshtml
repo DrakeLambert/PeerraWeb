@@ -48,9 +48,9 @@
                 "Authorization": "Bearer " + getAccessToken()
             }
         });
-        let body = await response.json();
 
         if (response.ok) {
+            let body = await response.json();
             let table = document.getElementById("connections");
             table.hidden = !body.length > 0;
             document.getElementById("noConnectionsMessage").hidden = body.length > 0;
@@ -85,9 +85,9 @@
                 "Authorization": "Bearer " + getAccessToken()
             }
         });
-        body = await response.json();
 
         if (response.ok) {
+            let body = await response.json();
             let table = document.getElementById("incomingConnections");
             table.hidden = !body.length > 0;
             document.getElementById("noIncomingConnectionsMessage").hidden = body.length > 0;
