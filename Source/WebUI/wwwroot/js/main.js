@@ -1,6 +1,6 @@
 const accessTokenKey = "accessToken";
 const refreshTokenKey = "refreshToken";
-const apiHost = "https://localhost:5002/api/";
+const apiHost = "https://peerraapi.azurewebsites.net/api/";
 var loggedIn = null;
 let username = null;
 let email = null;
