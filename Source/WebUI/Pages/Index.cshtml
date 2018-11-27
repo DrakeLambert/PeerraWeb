@@ -97,7 +97,12 @@
 
                 let userCell = row.insertCell();
                 let userLink = document.createElement("a");
-                userLink.href = "/incomingconnection?id=" + connection.requestorUsername;
+                if (connection.pending) {
+                    userLink.href = "/incomingconnection?id=" + connection.requestorUsername;
+                }
+                else {
+                    userLink.href = "/connection?id=" + connection.requestorUsername;
+                }
                 userLink.innerText = connection.requestorUsername;
                 userCell.appendChild(userLink);
 
