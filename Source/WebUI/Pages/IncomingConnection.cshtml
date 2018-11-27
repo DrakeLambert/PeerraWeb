@@ -1,0 +1,75 @@
+@page
+
+<div class="row">
+    <div class="col-md mt-3">
+        <h3>
+            <a id="requestorUsername"></a> Wants to Connect
+        </h3>
+        <div id="errorMessage" class="text-danger"></div>
+    </div>
+    <div class="col-md mt-3">
+        <button class="btn btn-success mr-2" onclick="accept(true);">Accept</button>
+        <button class="btn btn-outline-danger" onclick="accept(false);">Decline</button>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <p class="mb-0">If you accept this connection, <span id="requestorUsername2"></span> will be able to see your email address.</p>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="col-md">
+        <h4>Introduction Message</h4>
+        <p id="message"></p>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+    let id = new URLSearchParams(window.location.search).get("id");
+    var targetElement = document.getElementById("requestorUsername2").innerText = id;
+    var targetElement = document.getElementById("requestorUsername");
+    targetElement.innerText = id;
+    targetElement.href = "/user?id=" + id;
+
+    getConnection(id);
+
+    async function getConnection(targetUser) {
+        let response = await fetch(apiHost + "connections/connection?username=" + id, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.,
+            mode: "cors",
+            headers: {
+                "Authorization": "Bearer " + getAccessToken()
+            }
+        });
+        let body = await response.json();
+
+        if (response.ok) {
+            document.getElementById("message").innerText = body.message;
+        }
+        else {
+            document.getElementById("errorMessage").innerText = body.error;
+        }
+    }
+
+    async function accept(accept) {
+        let response = await fetch(apiHost + "connections/acceptConnection?username=" + id + "&accept=" + accept, {
+            method: "POST", // *GET, POST, PUT, DELETE, etc.,
+            mode: "cors",
+            headers: {
+                "Authorization": "Bearer " + getAccessToken()
+            }
+        });
+        let body = await response.json();
+
+        if (response.ok) {
+            window.location.href = "/connection?id=" + id;
+        }
+        else {
+            document.getElementById("errorMessage").innerText = body.error;
+        }
+    }
+</script>
+}

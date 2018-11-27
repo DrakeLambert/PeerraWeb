@@ -1,0 +1,125 @@
+@page
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form class="row justify-content-center" onsubmit="skillSearch(); return false;">
+            <div class="col-md  mt-3">
+                <input id="skillSearchTerms" class="form-control form-control-lg" placeholder="I'm looking for help with..." type="text">
+            </div>
+            <div class="col-md-auto mt-3" style="text-align: center">
+                <button class="btn btn-primary form-control-lg" type="submit">Get Connected</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="connectionsAndRequests" hidden="true">
+    <hr>
+
+    <div class="row">
+        <div class="col-lg">
+            <h3>My Connections</h3>
+            <div class="table-responsive">
+                <table hidden="true" class="table" id="connections"></table>
+                <p hidden="true" id="noConnectionsMessage">After you make some connections, they will appear here!</p>
+            </div>
+        </div>
+        <div style="border-left:1px solid rgba(0,0,0,.1);"></div>
+        <div class="col-lg">
+            <h3>Incoming Connections</h3>
+            <div class="table-responsive">
+                <table hidden="true" class="table" id="incomingConnections"></table>
+                <p hidden="true" id="noIncomingConnectionsMessage">After you make some connections, they will appear here!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+    isLoggedIn().then(async value => {
+        document.getElementById("connectionsAndRequests").hidden = !value;
+
+        let response = await fetch(apiHost + "Connections/Connections", {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.,
+            mode: "cors",
+            headers: {
+                "Authorization": "Bearer " + getAccessToken()
+            }
+        });
+        let body = await response.json();
+
+        if (response.ok) {
+            let table = document.getElementById("connections");
+            table.hidden = !body.length > 0;
+            document.getElementById("noConnectionsMessage").hidden = body.length > 0;
+            body.forEach(connection => {
+                let row = table.insertRow();
+
+                let userCell = row.insertCell();
+                let userLink = document.createElement("a");
+                userLink.href = "/connection?id=" + connection.targetUsername;
+                userLink.innerText = connection.targetUsername;
+                userCell.appendChild(userLink);
+
+                let statusCell = row.insertCell();
+                let status = connection.status;
+                statusCell.innerText = status;
+                if (status === "Accepted") {
+                    statusCell.classList.add("text-success");
+                }
+                if (status === "Pending") {
+                    statusCell.classList.add("text-warning");
+                }
+                if (status === "Declined") {
+                    statusCell.classList.add("text-danger");
+                }
+            });
+        }
+
+        response = await fetch(apiHost + "Connections/IncomingConnections", {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.,
+            mode: "cors",
+            headers: {
+                "Authorization": "Bearer " + getAccessToken()
+            }
+        });
+        body = await response.json();
+
+        if (response.ok) {
+            let table = document.getElementById("incomingConnections");
+            table.hidden = !body.length > 0;
+            document.getElementById("noIncomingConnectionsMessage").hidden = body.length > 0;
+
+            body.forEach(connection => {
+                let row = table.insertRow();
+
+                let userCell = row.insertCell();
+                let userLink = document.createElement("a");
+                userLink.href = "/incomingconnection?id=" + connection.requestorUsername;
+                userLink.innerText = connection.requestorUsername;
+                userCell.appendChild(userLink);
+
+                let statusCell = row.insertCell();
+                let status = connection.status;
+                statusCell.innerText = status;
+                if (status === "Accepted") {
+                    statusCell.classList.add("text-success");
+                }
+                if (status === "Pending") {
+                    statusCell.classList.add("text-warning");
+                }
+                if (status === "Declined") {
+                    statusCell.classList.add("text-danger");
+                }
+            });
+        }
+    });
+
+    function skillSearch() {
+        var searchTerms = document.getElementById("skillSearchTerms").value;
+        window.location.href = "/skillsearch?skills=" + searchTerms;
+    }
+</script>
+}

@@ -1,0 +1,62 @@
+@page
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <form class="row justify-content-center" onsubmit="skillSearch(); return false;">
+            <div class="col-md  mt-3">
+                <input id="skillSearchTerms" class="form-control form-control-lg" placeholder="I'm looking for help with..." type="text">
+            </div>
+            <div class="col-md-auto mt-3" style="text-align: center">
+                <button class="btn btn-primary form-control-lg" type="submit">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive mt-3">
+    <table id="results" class="table">
+        <tr>
+            <th>Username</th>
+            <th>Relevant Skills</th>
+        </tr>
+    </table>
+</div>
+
+@section Scripts {
+<script>
+    let searchTerms = new URLSearchParams(window.location.search).get("skills");
+    document.getElementById("skillSearchTerms").value = searchTerms;
+    search(searchTerms).then(users => {
+        let table = document.getElementById("results");
+        users.forEach(user => {
+            let row = table.insertRow();
+
+            let userCell = row.insertCell();
+            let userLink = document.createElement("a");
+            userLink.href = "/user?id=" + user.username;
+            userLink.innerText = user.username;
+            userCell.appendChild(userLink);
+            console.log(user);
+
+            let skillCell = row.insertCell();
+            skillCell.innerHTML = user.skills.join(", ");
+        });
+    });
+
+    function skillSearch() {
+        let searchTerms = document.getElementById("skillSearchTerms").value;
+        window.location.href = "/skillsearch?skills=" + searchTerms;
+    }
+
+    async function search(terms) {
+        let searchResponse = await fetch(apiHost + "skill/usersWithSkills?skills=" + terms, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json; charset=utf-8"
+            }
+        });
+        return searchResponse.json();
+    }
+</script>
+}

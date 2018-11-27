@@ -1,0 +1,95 @@
+@page
+
+<div class="row">
+    <div class="col-md mt-3">
+        <h3>
+            Connection to <a id="targetUsername"></a>
+        </h3>
+        <div id="errorMessage" class="text-danger"></div>
+    </div>
+    <div class="col-md mt-3">
+        <h3>Status:
+            <span id="connectionStatus"></span>
+        </h3>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <p class="mb-0">This page will update when your connection is accepted or declined.</p>
+    </div>
+</div>
+<hr>
+<div class="row">
+    <div class="col-md">
+        <h4>Introduction Message</h4>
+        <p id="message"></p>
+    </div>
+    <div class="col-md" id="emailContainer" hidden="true">
+        <h4>Connection Email</h4>
+        <a id="email"></a>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+    let id = new URLSearchParams(window.location.search).get("id");
+    var targetElement = document.getElementById("targetUsername");
+    targetElement.innerText = id;
+    targetElement.href = "/user?id=" + id;
+
+    getConnection(id);
+
+    async function getConnection(targetUser) {
+        let response = await fetch(apiHost + "connections/connection?username=" + id, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.,
+            mode: "cors",
+            headers: {
+                "Authorization": "Bearer " + getAccessToken()
+            }
+        });
+        let body = await response.json();
+
+        if (response.ok) {
+            let statusElement = document.getElementById("connectionStatus");
+            let status = body.status;
+            statusElement.innerText = status;
+            if (status === "Accepted") {
+                statusElement.classList.add("text-success");
+            }
+            if (status === "Pending") {
+                statusElement.classList.add("text-warning");
+            }
+            if (status === "Declined") {
+                statusElement.classList.add("text-danger");
+            }
+            document.getElementById("message").innerText = body.message;
+
+            if (body.accepted) {
+                response = await fetch(apiHost + "connections/AcceptedConnectionInfo?username=" + id, {
+                    method: "GET", // *GET, POST, PUT, DELETE, etc.,
+                    mode: "cors",
+                    headers: {
+                        "Authorization": "Bearer " + getAccessToken()
+                    }
+                });
+
+                body = await response.json();
+
+                if (response.ok) {
+                    document.getElementById("emailContainer").hidden = false;
+                    let emailElement = document.getElementById("email")
+                    emailElement.href = "mailto:" + body.email;
+                    emailElement.innerText = body.email;
+                }
+                else {
+                    document.getElementById("errorMessage").innerText = body.error;
+                }
+            }
+        }
+        else {
+            document.getElementById("errorMessage").innerText = body.error;
+        }
+    }
+</script>
+}

@@ -1,0 +1,49 @@
+@page
+
+<div class="row">
+    <div class="col-md mt-3">
+        <h3 id="username"></h3>
+        <p id="bio"></p>
+        <a id="connectButton"  href="/connect?id=" class="btn btn-primary" hidden="true">Connect</a>
+        <a id="loginToConnectButton" href="/login" class="btn btn-primary" hidden="true">Login to Connect</a>
+    </div>
+    <div class="col-md mt-3">
+        <h3>Skills</h3>
+        <ul id="skills"></ul>
+    </div>
+</div>
+
+
+@section Scripts {
+<script>
+    let id = new URLSearchParams(window.location.search).get("id");
+
+    getUserInfo(id).then(userInfo => {
+        document.getElementById("bio").innerText = userInfo.bio;
+        var skillUl = document.getElementById("skills");
+        userInfo.skills.forEach(skill => {
+            let skillLi = document.createElement("li");
+            skillLi.innerText = skill;
+            skillUl.appendChild(skillLi);
+        });
+    });
+
+    isLoggedIn().then(value => {
+        document.getElementById("connectButton").hidden = !value;
+        document.getElementById("loginToConnectButton").hidden = value;
+    });
+
+    document.getElementById("loginToConnectButton").href += "?return=" + window.location;
+    document.getElementById("connectButton").href += id;
+    
+    document.getElementById("username").innerHTML = id;
+
+    async function getUserInfo(id) {
+        let searchResponse = await fetch(apiHost + "users/userInfo?username=" + id, {
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            mode: "cors"
+        });
+        return await searchResponse.json();
+    }
+</script>
+}
